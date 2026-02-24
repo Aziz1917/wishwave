@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-wishlist}
+      POSTGRES_USER: ${POSTGRES_USER:-wishlist}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wishlist}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wishlist} -d ${POSTGRES_DB:-wishlist}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "5432:5432"
+    volumes:
+      - wishlist_pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://wishlist:wishlist@db:5432/wishlist}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
+      GOOGLE_OAUTH_REDIRECT_URI: ${GOOGLE_OAUTH_REDIRECT_URI:-http://localhost:8000/api/v1/auth/oauth/google/callback}
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "3000:3000"
+
+volumes:
+  wishlist_pgdata:

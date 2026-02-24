@@ -1,0 +1,48 @@
+# Root
+.env
+.env.*
+*.env
+*.local
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+
+# Node
+node_modules/
+.next/
+dist/
+
+# IDE
+.idea/
+.vscode/
+
+# Logs / runtime
+*.log
+*.out
+*.err
+
+# Local databases / caches
+*.db
+*.sqlite
+*.sqlite3
+
+# Archives / temporary
+*.zip
+*.tar
+*.tar.gz
+tmp_*
+
+# Deployment / local artifacts
+wishwave-deploy.tar.gz
+frontend-dev.log
+home.png
+home-fixed.png
+tools/
+frontend/test-results/

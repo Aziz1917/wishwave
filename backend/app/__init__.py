@@ -1,0 +1,2 @@
+"""Social wishlist backend package."""
+
